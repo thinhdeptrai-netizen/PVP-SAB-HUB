@@ -1,4 +1,4 @@
---// RAUSENIA PVP FULL UI (NO BUG VERSION)
+--// RAUSENIA PVP FULL UI + MINI ANTI KNOCKBACK
 --// Made by Th1nH Z 💖
 
 local Players = game:GetService("Players")
@@ -24,7 +24,7 @@ local toggleBtn = Instance.new("TextButton")
 toggleBtn.Name = "TogglePanel"
 toggleBtn.Parent = gui
 toggleBtn.Size = UDim2.new(0,55,0,55)
-toggleBtn.Position = UDim2.new(0,25,0.5,-30)
+toggleBtn.Position = UDim2.new(0,45,0.5,0)
 toggleBtn.Text = "🧨"
 toggleBtn.BackgroundColor3 = Color3.fromRGB(0,255,255)
 toggleBtn.BackgroundTransparency = 0.35
@@ -35,36 +35,24 @@ toggleBtn.BorderColor3 = Color3.fromRGB(0,255,255)
 toggleBtn.ZIndex = 50
 toggleBtn.AutoButtonColor = false
 toggleBtn.ClipsDescendants = true
-toggleBtn.Visible = true
 toggleBtn.AnchorPoint = Vector2.new(0.5,0.5)
-toggleBtn.Position = UDim2.new(0,45,0.5,0)
 toggleBtn.TextColor3 = Color3.new(1,0,0)
-
-toggleBtn.BackgroundColor3 = Color3.fromRGB(0,255,255)
-toggleBtn.BackgroundTransparency = 0.35
-toggleBtn.TextColor3 = Color3.new(1,0,0)
-
--- Bo tròn
-local corner = Instance.new("UICorner", toggleBtn)
-corner.CornerRadius = UDim.new(1,0)
+Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(1,0)
 
 -- Drag panel
 local dragging = false
 local dragPos = nil
-
 toggleBtn.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
         dragPos = input.Position
     end
 end)
-
 toggleBtn.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = false
     end
 end)
-
 UIS.InputChanged:Connect(function(input)
     if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragPos
@@ -86,7 +74,6 @@ main.BorderColor3 = Color3.fromRGB(0,255,255)
 main.BorderSizePixel = 2
 main.Visible = false
 main.ClipsDescendants = true
-
 Instance.new("UICorner", main).CornerRadius = UDim.new(0,12)
 
 local title = Instance.new("TextLabel", main)
@@ -96,29 +83,6 @@ title.TextScaled = true
 title.BackgroundTransparency = 1
 title.TextColor3 = Color3.fromRGB(0,255,255)
 title.Font = Enum.Font.Arcade
-
---------------------------------------------------------------
--- 🟦 MINI HITBOX UI
---------------------------------------------------------------
-local mini = Instance.new("Frame", gui)
-mini.Name = "MiniHitboxUI"
-mini.Size = UDim2.new(0,260,0,180)
-mini.Position = UDim2.new(0.5,-130,0.5,-90)
-mini.BackgroundColor3 = Color3.fromRGB(0,0,0)
-mini.BackgroundTransparency = 0.4
-mini.BorderColor3 = Color3.fromRGB(0,255,255)
-mini.BorderSizePixel = 2
-mini.Visible = false
-
-Instance.new("UICorner", mini).CornerRadius = UDim.new(0,12)
-
-local miniTitle = Instance.new("TextLabel", mini)
-miniTitle.Size = UDim2.new(1,0,0,40)
-miniTitle.Text = "🟦RAUSENIA HITBOX🟦"
-miniTitle.TextScaled = true
-miniTitle.BackgroundTransparency = 1
-miniTitle.TextColor3 = Color3.fromRGB(0,255,255)
-miniTitle.Font = Enum.Font.Arcade
 
 --------------------------------------------------------------
 -- BUTTON CREATOR
@@ -152,8 +116,27 @@ local leave = newToggle(main,"LEAVE")
 leave.Position = UDim2.new(0,10,0,250)
 
 --------------------------------------------------------------
--- MINI UI: TEXTBOX + APPLY HITBOX
+-- MINI HITBOX UI
 --------------------------------------------------------------
+local mini = Instance.new("Frame", gui)
+mini.Name = "MiniHitboxUI"
+mini.Size = UDim2.new(0,260,0,180)
+mini.Position = UDim2.new(0.5,-130,0.5,-90)
+mini.BackgroundColor3 = Color3.fromRGB(0,0,0)
+mini.BackgroundTransparency = 0.4
+mini.BorderColor3 = Color3.fromRGB(0,255,255)
+mini.BorderSizePixel = 2
+mini.Visible = false
+Instance.new("UICorner", mini).CornerRadius = UDim.new(0,12)
+
+local miniTitle = Instance.new("TextLabel", mini)
+miniTitle.Size = UDim2.new(1,0,0,40)
+miniTitle.Text = "🟦RAUSENIA HITBOX🟦"
+miniTitle.TextScaled = true
+miniTitle.BackgroundTransparency = 1
+miniTitle.TextColor3 = Color3.fromRGB(0,255,255)
+miniTitle.Font = Enum.Font.Arcade
+
 local box = Instance.new("TextBox", mini)
 box.Size = UDim2.new(1,-20,0,40)
 box.Position = UDim2.new(0,10,0,45)
@@ -168,23 +151,115 @@ local applyHB = newToggle(mini,"APPLY HITBOX")
 applyHB.Position = UDim2.new(0,10,0,95)
 
 --------------------------------------------------------------
--- 🔥 ANTI KNOCKBACK
+-- 🔥 MINI ANTI KNOCKBACK TOGGLE
 --------------------------------------------------------------
-local akb = false
-antiKB.MouseButton1Click:Connect(function()
-    akb = not akb
-    antiKB.Text = "ANTI KNOCKBACK "..(akb and "🟢" or "🔴")
+local akbOn = false
+local bv
 
-    if akb then
-        lp.Character.Humanoid.StateChanged:Connect(function(old,new)
-            if new == Enum.HumanoidStateType.FallingDown or
-               new == Enum.HumanoidStateType.Ragdoll then
-                lp.Character.HumanoidRootPart.Anchored = true
-                task.wait(0.4)
-                lp.Character.HumanoidRootPart.Anchored = false
+-- Mini toggle UI
+local miniAKB = Instance.new("Frame", gui)
+miniAKB.Size = UDim2.new(0,150,0,70)
+miniAKB.Position = UDim2.new(0.5,-75,0.5,-35)
+miniAKB.BackgroundColor3 = Color3.fromRGB(0,255,255)
+miniAKB.BackgroundTransparency = 0.35
+miniAKB.BorderSizePixel = 2
+miniAKB.BorderColor3 = Color3.fromRGB(255,0,255)
+miniAKB.ClipsDescendants = true
+miniAKB.Visible = false
+Instance.new("UICorner", miniAKB).CornerRadius = UDim.new(0,12)
+
+local status = Instance.new("TextLabel", miniAKB)
+status.Size = UDim2.new(1,0,0,25)
+status.Position = UDim2.new(0,0,0,0)
+status.BackgroundTransparency = 1
+status.Font = Enum.Font.Arcade
+status.TextScaled = true
+status.TextColor3 = Color3.fromRGB(255,255,255)
+status.Text = "ANTI KNOCKBACK: 🔴 OFF"
+
+local toggle = Instance.new("TextButton", miniAKB)
+toggle.Size = UDim2.new(1,-20,0,40)
+toggle.Position = UDim2.new(0,10,0,25)
+toggle.BackgroundColor3 = Color3.fromRGB(128,0,128)
+toggle.BorderColor3 = Color3.fromRGB(255,0,255)
+toggle.BorderSizePixel = 2
+toggle.Font = Enum.Font.Arcade
+toggle.TextScaled = true
+toggle.TextColor3 = Color3.fromRGB(255,255,255)
+toggle.Text = "ANTI KNOCKBACK✊️"
+
+-- Bật/Tắt anti knockback
+local function EnableAntiKB()
+    local character = lp.Character or lp.CharacterAdded:Wait()
+    local root = character:WaitForChild("HumanoidRootPart")
+    local humanoid = character:WaitForChild("Humanoid")
+
+    bv = Instance.new("BodyVelocity")
+    bv.Velocity = Vector3.new(0,0,0)
+    bv.MaxForce = Vector3.new(1e5,1e5,1e5)
+    bv.Parent = root
+
+    humanoid.StateChanged:Connect(function(_, new)
+        if new == Enum.HumanoidStateType.PlatformStanding or
+           new == Enum.HumanoidStateType.FallingDown or
+           new == Enum.HumanoidStateType.Ragdoll then
+            humanoid:ChangeState(Enum.HumanoidStateType.Running)
+        end
+    end)
+end
+
+local function DisableAntiKB()
+    if bv then
+        bv:Destroy()
+        bv = nil
+    end
+end
+
+toggle.MouseButton1Click:Connect(function()
+    akbOn = not akbOn
+    if akbOn then
+        status.Text = "ANTI KNOCKBACK: 🟢 ON"
+        toggle.TextColor3 = Color3.fromRGB(0,255,0)
+        EnableAntiKB()
+    else
+        status.Text = "ANTI KNOCKBACK: 🔴 OFF"
+        toggle.TextColor3 = Color3.fromRGB(255,255,255)
+        DisableAntiKB()
+    end
+end)
+
+-- Drag mini toggle (PC + Mobile)
+local dragging, dragInput, dragStart, startPos
+toggle.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = miniAKB.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
             end
         end)
     end
+end)
+
+toggle.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        miniAKB.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                                      startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- Mở mini toggle khi nhấn nút main
+antiKB.MouseButton1Click:Connect(function()
+    miniAKB.Visible = not miniAKB.Visible
 end)
 
 --------------------------------------------------------------
@@ -205,11 +280,9 @@ end)
 -- 🔥 MENU HITBOX (OPEN MINI UI)
 --------------------------------------------------------------
 local menuHB = false
-
 menuHitbox.MouseButton1Click:Connect(function()
     menuHB = not menuHB
     menuHitbox.Text = "MENU HITBOX 🟦 "..(menuHB and "🟢" or "🔴")
-
     if menuHB then
         mini.Visible = true
         TweenService:Create(mini,TweenInfo.new(0.25,Enum.EasingStyle.Back),{
@@ -228,14 +301,11 @@ end)
 -- 🔥 APPLY HITBOX TO OTHERS
 --------------------------------------------------------------
 local applyState = false
-
 applyHB.MouseButton1Click:Connect(function()
     applyState = not applyState
     applyHB.Text = "APPLY HITBOX "..(applyState and "🟢" or "🔴")
-
     local size = tonumber(box.Text)
     if not size then return end
-
     for _,p in pairs(Players:GetPlayers()) do
         if p ~= lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
             local hrp = p.Character.HumanoidRootPart
@@ -251,21 +321,17 @@ end)
 -- 🔥 ESP PLAYER
 --------------------------------------------------------------
 local espOn = false
-
 local function addESP(char)
     if not char:FindFirstChild("HumanoidRootPart") then return end
-
     local esp = Instance.new("Highlight")
     esp.Parent = char
     esp.FillTransparency = 0.7
     esp.OutlineColor = Color3.fromRGB(0,255,255)
     esp.Name = "ESP_RAUSENIA"
 end
-
 espPlayer.MouseButton1Click:Connect(function()
     espOn = not espOn
     espPlayer.Text = "ESP PLAYER "..(espOn and "🟢" or "🔴")
-
     for _,p in pairs(Players:GetPlayers()) do
         if p ~= lp then
             if espOn then
@@ -283,10 +349,8 @@ end)
 -- 🔥 OPEN/CLOSE MAIN UI BY TOGGLE PANEL
 --------------------------------------------------------------
 local open = false
-
 toggleBtn.MouseButton1Click:Connect(function()
     open = not open
-
     if open then
         main.Visible = true
         main.Size = UDim2.new(0,0,0,0)
